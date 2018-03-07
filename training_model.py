@@ -1,7 +1,8 @@
 from keras.applications.inception_v3 import InceptionV3
 from keras.layers import Dense, GlobalAveragePooling2D
 from keras.models import Model
-
+import time
+import datetime
 from data_generator import DataGenerator
 
 # create base model (pre-trained)
@@ -34,6 +35,9 @@ lr=0.005
 momentum=0.9
 decay=0.0005
 
+start_time = time.time()
+start_time_string = datetime.datetime.fromtimestamp(start_time).strftime('%Y-%m-%d_%H:%M:%S')
+
 model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
                     validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
 
@@ -54,3 +58,9 @@ model.compile(optimizer=SGD(lr=lr, momentum=momentum, decay=decay), loss='catego
 
 model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
                     validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
+
+end_time = time.time()
+end_time_string = datetime.datetime.fromtimestamp(end_time).strftime('%Y-%m-%d_%H:%M:%S')
+model_filename = './trained_models/' + str(start_time_string) + "-" + str(end_time_string) + '.h5'
+
+model.save(model_filename)
