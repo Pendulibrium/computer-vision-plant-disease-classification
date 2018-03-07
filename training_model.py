@@ -26,10 +26,9 @@ model.compile(optimizer='rmsprop', loss='categorical_crossentropy',  metrics=['a
 data_generator = DataGenerator()
 train_data, test_data = data_generator.split_data()
 
-
 batch_size = 24
 steps_per_epoch = len(train_data) // batch_size
-epochs = 30
+epochs = 15
 validation_steps = len(test_data) // batch_size
 lr=0.005
 momentum=0.9
@@ -41,9 +40,6 @@ start_time_string = datetime.datetime.fromtimestamp(start_time).strftime('%Y-%m-
 model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
                     validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
 
-# for i, layer in enumerate(base_model.layers):
-#    print(i, layer.name)
-
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
 for layer in model.layers[:249]:
@@ -54,13 +50,13 @@ for layer in model.layers[249:]:
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
 from keras.optimizers import SGD
-model.compile(optimizer=SGD(lr=lr, momentum=momentum, decay=decay), loss='categorical_crossentropy')
+model.compile(optimizer=SGD(lr=lr, momentum=momentum, decay=decay), loss='categorical_crossentropy',  metrics=['acc'])
 
 model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
                     validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
 
 end_time = time.time()
 end_time_string = datetime.datetime.fromtimestamp(end_time).strftime('%Y-%m-%d_%H:%M:%S')
-model_filename = './trained_models/' + str(start_time_string) + "-" + str(end_time_string) + '.h5'
+model_filename = 'trained_models/' + str(start_time_string) + "-" + str(end_time_string) + '.h5'
 
 model.save(model_filename)

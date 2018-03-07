@@ -30,7 +30,6 @@ class DataGenerator:
 
     def split_data(self):
         folder_names = [name for name in os.listdir(self.images_folder)]
-        #print(folder_names)
         images_paths_JPG = [y for x in os.walk('data/color') for y in glob(os.path.join(x[0], "*.JPG"))]
         images_paths_jpg = [y for x in os.walk('data/color') for y in glob(os.path.join(x[0], "*.jbg"))]
 
@@ -49,7 +48,6 @@ class DataGenerator:
         data = np.array(data)
         np.random.shuffle(data)
         data_length = len(data)
-        #print(data_length)
         split_index = int(data_length * 0.8)
         train_data = data[0:split_index]
         test_data = data[split_index:data_length]
@@ -67,13 +65,9 @@ class DataGenerator:
 
         batch_data = np.zeros((len(data), 299, 299, 3))
         batch_labels = []
-        # print(len(data))
         for i in range(len(data)):
-            # print i
             image_path = data[i][0]
             batch_labels.append(self.folder_name_to_one_hot(data[i][1]))
-            #print batch_labels
-            #print image_path
             image = cv2.imread(image_path)
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             image = cv2.resize(image, (299,299))
@@ -92,5 +86,3 @@ class DataGenerator:
                 images, labels = self.prepare_batch_data(batch_data)
                 yield [images], labels
 
-# dg = DataGenerator()
-# dg.save_folder_names_json()# dg.generate_data()
