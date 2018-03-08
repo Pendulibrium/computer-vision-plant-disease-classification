@@ -1,9 +1,9 @@
 import numpy as np
 import os
 import cv2
-from glob import glob
 import json
 import util as util
+import h5py
 
 
 class DataGenerator:
@@ -19,42 +19,15 @@ class DataGenerator:
         x *= 2.
         return x
 
-    def save_folder_names_json(self, path_to_json_file="data/folder_dictionary.json"):
+    def save_folder_names_json(self, path_to_json_file="data/category_dictionary.json"):
         category_names = [name for name in os.listdir(self.images_folder)]
         category_dictionary = {}
 
         for i in range(len(category_names)):
-            category_dictionary[category_names[i]]=i
+            category_dictionary[category_names[i]] = i
 
         with open(path_to_json_file, 'w') as fp:
             json.dump(category_dictionary, fp)
-
-    def split_data(self):
-        folder_names = [name for name in os.listdir(self.images_folder)]
-        images_paths_JPG = [y for x in os.walk('data/color') for y in glob(os.path.join(x[0], "*.JPG"))]
-        images_paths_jpg = [y for x in os.walk('data/color') for y in glob(os.path.join(x[0], "*.jpg"))]
-
-        images_paths = images_paths_JPG + images_paths_jpg
-        data = []
-
-        for image_path in images_paths:
-            folder_name = ""
-            for folder in folder_names:
-                if folder in image_path:
-                    folder_name = folder
-                    break
-
-            data.append([image_path, folder_name])
-
-        data = np.array(data)
-        np.random.shuffle(data)
-        data_length = len(data)
-        split_index = int(data_length * 0.8)
-        train_data = data[0:split_index]
-        test_data = data[split_index:data_length]
-
-        return train_data, test_data
-
 
     def prepare_batch_data(self, data):
 
@@ -65,7 +38,7 @@ class DataGenerator:
             batch_labels.append(util.category_to_one_hot(data[i][1]))
             image = cv2.imread(image_path)
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            image = cv2.resize(image, (299,299))
+            image = cv2.resize(image, (299, 299))
             image = self.preprocess_input(image.astype(float))
             batch_data[i] = image
 
@@ -73,7 +46,11 @@ class DataGenerator:
 
     def generate_data(self, data, testing=False):
 
+        data = np.array(data)
+
         while True:
+
+            np.random.shuffle(data)
             num_samples = len(data)
 
             for i in range(0, num_samples, self.batch_size):

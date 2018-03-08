@@ -4,7 +4,10 @@ from keras.models import Model
 import time
 import datetime
 from data_generator import DataGenerator
+import h5py
 
+
+# More models, call them by enumeration
 # create base model (pre-trained)
 base_model = InceptionV3(weights='imagenet', include_top=False)
 
@@ -23,8 +26,11 @@ for layer in base_model.layers:
 
 model.compile(optimizer='rmsprop', loss='categorical_crossentropy',  metrics=['acc'])
 
+data_path = "data/plant_disease_classification_data.h5"
+file = h5py.File(data_path, 'r')
+train_data = file["train_data"]
+test_data = file["test_data"]
 data_generator = DataGenerator()
-train_data, test_data = data_generator.split_data()
 
 print(len(train_data))
 print(len(test_data))
