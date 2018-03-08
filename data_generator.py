@@ -3,6 +3,7 @@ import os
 import cv2
 from glob import glob
 import json
+import util as util
 
 
 class DataGenerator:
@@ -19,19 +20,19 @@ class DataGenerator:
         return x
 
     def save_folder_names_json(self, path_to_json_file="data/folder_dictionary.json"):
-        folder_names = [name for name in os.listdir(self.images_folder)]
-        folder_dictionary = {}
+        category_names = [name for name in os.listdir(self.images_folder)]
+        category_dictionary = {}
 
-        for i in range(len(folder_names)):
-            folder_dictionary[folder_names[i]]=i
+        for i in range(len(category_names)):
+            category_dictionary[category_names[i]]=i
 
         with open(path_to_json_file, 'w') as fp:
-            json.dump(folder_dictionary, fp)
+            json.dump(category_dictionary, fp)
 
     def split_data(self):
         folder_names = [name for name in os.listdir(self.images_folder)]
         images_paths_JPG = [y for x in os.walk('data/color') for y in glob(os.path.join(x[0], "*.JPG"))]
-        images_paths_jpg = [y for x in os.walk('data/color') for y in glob(os.path.join(x[0], "*.jbg"))]
+        images_paths_jpg = [y for x in os.walk('data/color') for y in glob(os.path.join(x[0], "*.jpg"))]
 
         images_paths = images_paths_JPG + images_paths_jpg
         data = []
@@ -54,12 +55,6 @@ class DataGenerator:
 
         return train_data, test_data
 
-    def folder_name_to_one_hot(self, folder_name, folder_json="data/folder_dictionary.json"):
-        folder_dictionary = json.load(open(folder_json))
-
-        one_hot = np.zeros((len(folder_dictionary.keys())))
-        one_hot[folder_dictionary[folder_name]] = 1
-        return one_hot
 
     def prepare_batch_data(self, data):
 
@@ -67,7 +62,7 @@ class DataGenerator:
         batch_labels = []
         for i in range(len(data)):
             image_path = data[i][0]
-            batch_labels.append(self.folder_name_to_one_hot(data[i][1]))
+            batch_labels.append(util.category_to_one_hot(data[i][1]))
             image = cv2.imread(image_path)
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             image = cv2.resize(image, (299,299))
@@ -76,7 +71,7 @@ class DataGenerator:
 
         return batch_data, np.array(batch_labels)
 
-    def generate_data(self, data):
+    def generate_data(self, data, testing=False):
 
         while True:
             num_samples = len(data)
@@ -86,3 +81,5 @@ class DataGenerator:
                 images, labels = self.prepare_batch_data(batch_data)
                 yield [images], labels
 
+            if testing:
+                break

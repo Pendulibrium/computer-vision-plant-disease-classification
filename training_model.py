@@ -26,6 +26,9 @@ model.compile(optimizer='rmsprop', loss='categorical_crossentropy',  metrics=['a
 data_generator = DataGenerator()
 train_data, test_data = data_generator.split_data()
 
+print(len(train_data))
+print(len(test_data))
+
 batch_size = 24
 steps_per_epoch = len(train_data) // batch_size
 epochs = 15
