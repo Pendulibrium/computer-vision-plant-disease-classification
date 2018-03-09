@@ -1,28 +1,16 @@
-from keras.applications.inception_v3 import InceptionV3
-from keras.layers import Dense, GlobalAveragePooling2D
 from keras.models import Model
 import time
 import datetime
 from data_generator import DataGenerator
 import h5py
+from model_generator import ModelGenerator, ModelType
 
+# create base model (pre-trained) (VGG16_MODEL, GOOGLENET_MODEL)
+category_count = 38
+model_type = ModelType.ALEXNET_MODEL
 
-# More models, call them by enumeration
-# create base model (pre-trained)
-base_model = InceptionV3(weights='imagenet', include_top=False)
-
-# add layers to train
-x = base_model.output
-x = GlobalAveragePooling2D()(x)
-# let's add a fully-connected layer
-x = Dense(1024, activation='relu')(x)
-# and a logistic layer -- let's say we have 200 classes
-predictions = Dense(38, activation='softmax')(x)
-
-model = Model(inputs=base_model.input, outputs=predictions)
-
-for layer in base_model.layers:
-    layer.trainable = False
+model_generator = ModelGenerator(model_type, category_count)
+model, resize_shape = model_generator.getModel()
 
 model.compile(optimizer='rmsprop', loss='categorical_crossentropy',  metrics=['acc'])
 
@@ -32,8 +20,8 @@ train_data = file["train_data"]
 test_data = file["test_data"]
 data_generator = DataGenerator()
 
-print(len(train_data))
-print(len(test_data))
+print("Train data size: ", len(train_data))
+print("Test data size: ", len(test_data))
 
 batch_size = 24
 steps_per_epoch = len(train_data) // batch_size
@@ -46,23 +34,20 @@ decay=0.0005
 start_time = time.time()
 start_time_string = datetime.datetime.fromtimestamp(start_time).strftime('%Y-%m-%d_%H:%M:%S')
 
-model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
-                    validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
+model.fit_generator(generator=data_generator.generate_data(train_data, resize_shape=resize_shape), steps_per_epoch=steps_per_epoch, epochs=epochs,
+                    validation_data=data_generator.generate_data(test_data, resize_shape=resize_shape), validation_steps=validation_steps)
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
-for layer in model.layers[:249]:
-   layer.trainable = False
-for layer in model.layers[249:]:
-   layer.trainable = True
+model = model_generator.prepare_second_model(model)
 
 # we need to recompile the model for these modifications to take effect
 # we use SGD with a low learning rate
 from keras.optimizers import SGD
 model.compile(optimizer=SGD(lr=lr, momentum=momentum, decay=decay), loss='categorical_crossentropy',  metrics=['acc'])
 
-model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
-                    validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
+model.fit_generator(generator=data_generator.generate_data(train_data, resize_shape=resize_shape), steps_per_epoch=steps_per_epoch, epochs=epochs,
+                    validation_data=data_generator.generate_data(test_data, resize_shape=resize_shape), validation_steps=validation_steps)
 
 end_time = time.time()
 end_time_string = datetime.datetime.fromtimestamp(end_time).strftime('%Y-%m-%d_%H:%M:%S')
