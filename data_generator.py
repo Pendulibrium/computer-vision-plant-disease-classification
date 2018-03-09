@@ -29,16 +29,16 @@ class DataGenerator:
         with open(path_to_json_file, 'w') as fp:
             json.dump(category_dictionary, fp)
 
-    def prepare_batch_data(self, data):
+    def prepare_batch_data(self, data, resize_shape):
 
-        batch_data = np.zeros((len(data), 299, 299, 3))
+        batch_data = np.zeros((len(data), resize_shape[0], resize_shape[1], 3))
         batch_labels = []
         for i in range(len(data)):
             image_path = data[i][0]
             batch_labels.append(util.category_to_one_hot(data[i][1]))
             image = cv2.imread(image_path)
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            image = cv2.resize(image, (299, 299))
+            image = cv2.resize(image, resize_shape)
             image = self.preprocess_input(image.astype(float))
             batch_data[i] = image
 
