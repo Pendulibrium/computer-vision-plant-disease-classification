@@ -15,13 +15,13 @@ class ModelGenerator:
     def getModel(self):
         if self.model_name == ModelType.VGG16_MODEL:
             self.current_model = VGG16Model(self.number_of_classes).model()
-            return self.current_model, (224, 224, 3)
+            return self.current_model, (224, 224)
         if self.model_name == ModelType.GOOGLENET_MODEL:
             self.current_model = GoogLeNetModel(self.number_of_classes).model()
-            return self.current_model, (299, 299, 3)
+            return self.current_model, (299, 299)
         if self.model_name == ModelType.ALEXNET_MODEL:
             self.current_model = AlexNetModel(self.number_of_classes, input_shape=(256, 256, 3)).model()
-            return self.current_model, (256, 256, 3)
+            return self.current_model, (256, 256)
 
     def prepare_second_model(self, model):
         if self.model_name == ModelType.ALEXNET_MODEL:

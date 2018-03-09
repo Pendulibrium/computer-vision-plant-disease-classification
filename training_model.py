@@ -10,7 +10,7 @@ category_count = 38
 model_type = ModelType.ALEXNET_MODEL
 
 model_generator = ModelGenerator(model_type, category_count)
-model, input_shape = model_generator.getModel()
+model, resize_shape = model_generator.getModel()
 
 model.compile(optimizer='rmsprop', loss='categorical_crossentropy',  metrics=['acc'])
 
@@ -34,8 +34,8 @@ decay=0.0005
 start_time = time.time()
 start_time_string = datetime.datetime.fromtimestamp(start_time).strftime('%Y-%m-%d_%H:%M:%S')
 
-model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
-                    validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
+model.fit_generator(generator=data_generator.generate_data(train_data, resize_shape=resize_shape), steps_per_epoch=steps_per_epoch, epochs=epochs,
+                    validation_data=data_generator.generate_data(test_data, resize_shape=resize_shape), validation_steps=validation_steps)
 
 # we chose to train the top 2 inception blocks, i.e. we will freeze
 # the first 249 layers and unfreeze the rest:
@@ -46,8 +46,8 @@ model = model_generator.prepare_second_model(model)
 from keras.optimizers import SGD
 model.compile(optimizer=SGD(lr=lr, momentum=momentum, decay=decay), loss='categorical_crossentropy',  metrics=['acc'])
 
-model.fit_generator(generator=data_generator.generate_data(train_data), steps_per_epoch=steps_per_epoch, epochs=epochs,
-                    validation_data=data_generator.generate_data(test_data), validation_steps=validation_steps)
+model.fit_generator(generator=data_generator.generate_data(train_data, resize_shape=resize_shape), steps_per_epoch=steps_per_epoch, epochs=epochs,
+                    validation_data=data_generator.generate_data(test_data, resize_shape=resize_shape), validation_steps=validation_steps)
 
 end_time = time.time()
 end_time_string = datetime.datetime.fromtimestamp(end_time).strftime('%Y-%m-%d_%H:%M:%S')

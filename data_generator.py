@@ -44,7 +44,7 @@ class DataGenerator:
 
         return batch_data, np.array(batch_labels)
 
-    def generate_data(self, data, testing=False):
+    def generate_data(self, data, resize_shape, testing=False):
 
         data = np.array(data)
 
@@ -55,7 +55,7 @@ class DataGenerator:
 
             for i in range(0, num_samples, self.batch_size):
                 batch_data = data[i: i + self.batch_size]
-                images, labels = self.prepare_batch_data(batch_data)
+                images, labels = self.prepare_batch_data(batch_data, resize_shape)
                 yield [images], labels
 
             if testing:
