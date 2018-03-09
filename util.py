@@ -24,8 +24,12 @@ def one_hot_to_category(prediction, category_json="data/category_dictionary.json
     return ""
 
 
-def get_file_names_from_directory(directory_path, extension):
-    return [y for x in os.walk(directory_path) for y in glob(os.path.join(x[0], extension))]
+def get_file_names_from_directory(directory_path, extensions):
+    results = []
+    for extension in extensions:
+        results.append([y for x in os.walk(directory_path) for y in glob(os.path.join(x[0], extension))])
+
+    return results
 
 
 def split_data(images_directory):
@@ -36,9 +40,8 @@ def split_data(images_directory):
 
     for category in category_names:
         category_path = images_directory + "/" + category
-        images_in_category = get_file_names_from_directory(directory_path=category_path, extension="*.JPG")
-        images_in_category = images_in_category + get_file_names_from_directory(directory_path=category_path,
-                                                                                extension="*.jpg")
+        images_in_category_ = get_file_names_from_directory(directory_path=category_path, extensions=["*.JPG", "*.jpg"])
+        images_in_category = images_in_category_[0] + images_in_category_[1]
 
         num_images = len(images_in_category)
 
