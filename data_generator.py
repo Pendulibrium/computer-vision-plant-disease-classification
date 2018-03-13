@@ -2,8 +2,10 @@ import numpy as np
 import os
 import cv2
 import json
-import util as util
 import h5py
+
+from utils.categories_conversion_utils import *
+from utils.directory_utils import *
 
 
 class DataGenerator:
@@ -35,7 +37,7 @@ class DataGenerator:
         batch_labels = []
         for i in range(len(data)):
             image_path = data[i][0]
-            batch_labels.append(util.category_to_one_hot(data[i][1]))
+            batch_labels.append(category_to_one_hot(data[i][1]))
             image = cv2.imread(image_path)
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             image = cv2.resize(image, resize_shape)
