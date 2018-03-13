@@ -6,6 +6,7 @@ __pycache__/
 
 .idea/
 data/color/
+data/
 trained_models/
 # C extensions
 *.so
