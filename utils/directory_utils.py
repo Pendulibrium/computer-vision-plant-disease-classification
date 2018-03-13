@@ -40,3 +40,5 @@ def split_data(images_directory):
     file.create_dataset("test_data_images", data=test_data_images)
     file.create_dataset("train_data_labels", data=train_data_labels)
     file.create_dataset("test_data_labels", data=test_data_labels)
+
+split_data('/home/wf-admin/Desktop/computer-vision-plant-disease-classification/data/color')
