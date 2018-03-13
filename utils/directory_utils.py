@@ -42,5 +42,3 @@ def split_data(images_directory):
         file.create_dataset("train_data_labels", data=train_data_labels)
         file.create_dataset("test_data_labels", data=test_data_labels)
         folder_index += 1
-
-split_data('/Users/wf-simonaivanova/Desktop/computer-vision-plant-disease-classification/data/color')
