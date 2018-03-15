@@ -4,10 +4,14 @@ import tensorflow as tf
 
 
 # Loading model in keras
+# input_layer_name = 'input_1'
+# output_layer_name = 'dense_2'
 model_name = "2018-03-07_20:51:35-2018-03-07_23:02:18"
 model_path = "trained_models/"+model_name+".h5"
 model = load_model(model_path)
 
+print(model.layers_by_depth)
+print(model.get_config())
 # Get current session using the keras backend (Tensorflow)
 sess = K.get_session()
 
