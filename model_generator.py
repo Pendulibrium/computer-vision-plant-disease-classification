@@ -52,7 +52,7 @@ class VGG16Model():
         # add another FC layer with 1024 neurons
         x = Dense(1024, activation='relu')(x)
         # add a logistic layer with number_of_classes
-        predictions = Dense(self.number_of_classes, activation='softmax')(x)
+        predictions = Dense(self.number_of_classes, activation='softmax', name="output")(x)
 
         model = Model(inputs=base_model.input, outputs=predictions)
 
@@ -82,7 +82,7 @@ class GoogLeNetModel:
         # add another FC layer with 1024 neurons
         x = Dense(1024, activation='relu')(x)
         # add a logistic layer (number_of_classes classes)
-        predictions = Dense(self.number_of_classes, activation='softmax')(x)
+        predictions = Dense(self.number_of_classes, activation='softmax', name="output")(x)
 
         model = Model(inputs=base_model.input, outputs=predictions)
         self.current_model = model

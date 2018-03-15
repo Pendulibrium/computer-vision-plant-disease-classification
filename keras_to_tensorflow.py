@@ -11,7 +11,7 @@ model_path = "trained_models/"+model_name+".h5"
 model = load_model(model_path)
 
 print(model.layers_by_depth)
-print(model.get_config())
+#print(model.get_config())
 # Get current session using the keras backend (Tensorflow)
 sess = K.get_session()
 
@@ -20,6 +20,7 @@ saver =  tf.train.Saver()
 # Saving checkpoing a.k.a saving the weights of the model
 saver.save(sess, checkpoint_folder + "checkpoint-1.ckpt")
 # Saving the graph of the model
-tf.train.write_graph(sess.graph, logdir=checkpoint_folder, name="graph_1.pb", as_text=False)
+sess.graph_def
+tf.train.write_graph(sess.graph_def, logdir=checkpoint_folder, name="graph_1.pb", as_text=False)
 
 
