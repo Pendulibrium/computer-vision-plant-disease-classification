@@ -13,7 +13,6 @@ def get_file_names_from_directory(directory_path, extensions):
 
 def split_data(images_directory):
     category_names = [name for name in os.listdir(images_directory)]
-
     train_data_images = []
     train_data_labels = []
     test_data_images = []
@@ -27,7 +26,7 @@ def split_data(images_directory):
         images_in_category = images_in_category_[0] + images_in_category_[1]
         num_images = len(images_in_category)
 
-        print category
+        print ("Folder:", category)
         for i in range(num_images):
             if i < int(num_images * 0.8):
                 train_data_images.append(cv2.imread(images_in_category[i]).astype('float'))
@@ -36,9 +35,12 @@ def split_data(images_directory):
                 test_data_images.append(cv2.imread(images_in_category[i]).astype('float'))
                 test_data_labels.append(category)
 
-        file = h5py.File('../data/plant_disease_classification_' + str(folder_index)+ '.h5', 'w')
-        file.create_dataset("train_data_images", data=train_data_images)
-        file.create_dataset("test_data_images", data=test_data_images)
-        file.create_dataset("train_data_labels", data=train_data_labels)
-        file.create_dataset("test_data_labels", data=test_data_labels)
-        folder_index += 1
+        if num_images > 0:
+            file = h5py.File('../data/plant_disease_classification_' + str(folder_index)+ '.h5', 'w')
+            file.create_dataset("train_data_images", data=train_data_images)
+            file.create_dataset("test_data_images", data=test_data_images)
+            file.create_dataset("train_data_labels", data=train_data_labels)
+            file.create_dataset("test_data_labels", data=test_data_labels)
+            folder_index += 1
+
+#split_data("/Users/wf-markosmilevski/computer-vision-plant-disease-classification/data/color")
