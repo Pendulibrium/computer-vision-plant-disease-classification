@@ -25,6 +25,7 @@ class DataGenerator:
         category_names = [name for name in os.listdir(self.images_folder)]
         category_dictionary = {}
 
+        category_names = sorted(category_names)
         for i in range(len(category_names)):
             category_dictionary[category_names[i]] = i
 
@@ -58,7 +59,7 @@ class DataGenerator:
             for i in range(0, num_samples, self.batch_size):
                 batch_data = data[i: i + self.batch_size]
                 images, labels = self.prepare_batch_data(batch_data, resize_shape)
-                yield [images], labels
+                yield images, labels
 
             if testing:
                 break
