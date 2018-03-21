@@ -3,6 +3,7 @@ import numpy as np
 import os
 import h5py
 import cv2
+import random
 
 
 def get_file_names_from_directory(directory_path, extensions):
@@ -37,14 +38,15 @@ def split_data(images_directory):
                 test_data_labels.append(category)
 
         if num_images > 0:
-            file = h5py.File('../data/plant_disease_classification_' + str(folder_index)+ '.h5', 'w')
+            file = h5py.File('../data/plant_disease_classification_' + str(folder_index) + '.h5', 'w')
             file.create_dataset("train_data_images", data=train_data_images)
             file.create_dataset("test_data_images", data=test_data_images)
             file.create_dataset("train_data_labels", data=train_data_labels)
             file.create_dataset("test_data_labels", data=test_data_labels)
             folder_index += 1
 
-#split_data("/Users/wf-markosmilevski/computer-vision-plant-disease-classification/data/color")
+
+# split_data("/Users/wf-markosmilevski/computer-vision-plant-disease-classification/data/color")
 
 
 def generate_different_background_images(backgrounds_path="../data/backgrounds/",
@@ -55,7 +57,7 @@ def generate_different_background_images(backgrounds_path="../data/backgrounds/"
     num_background_filters = len(background_image_files[0])
     for i in range(num_background_filters):
         current_background = cv2.imread(background_image_files[i])[:256, :256, :]
-        background_image_name_dir = background_image_files[i].rsplit( "/", 1 )[ -1 ].rsplit(".", 1)[0]
+        background_image_name_dir = background_image_files[i].rsplit("/", 1)[-1].rsplit(".", 1)[0]
 
         path = '../data/' + background_image_name_dir
 
@@ -78,13 +80,62 @@ def generate_different_background_images(backgrounds_path="../data/backgrounds/"
                 current_image = cv2.resize(current_image, (256, 256))
 
                 current_image_name = images_in_category[i].rsplit("/", 1)[-1]
-                current_inverted = invert_image(current_image)
-
-                transformed_image = current_inverted * current_background + current_image
+                transformed_image = connect_image_with_background(current_image, current_background)
                 cv2.imwrite(image_save_path + '/' + current_image_name, transformed_image)
+
 
 def invert_image(image):
     image_copy = image.copy()
     image_copy[np.where((image_copy == [0, 0, 0]).all(axis=2))] = 1
     image_copy[np.where((image_copy != [1, 1, 1]).all(axis=2))] = 0
     return image_copy
+
+
+def generate_resized_images_with_changed_background(images_directory='../data/segmented/',
+                                                    backgrounds_path="../data/backgrounds/"):
+    background_image_files = get_file_names_from_directory(directory_path=backgrounds_path, extensions=["*.jpg"])
+
+    num_background_filters = len(background_image_files[0])
+
+    for i in range(num_background_filters):
+        current_background = cv2.imread(background_image_files[0][i])[:256, :256, :]
+
+        background_image_name_dir = background_image_files[0][i].rsplit("/", 1)[-1].rsplit(".", 1)[0]
+
+        path = '../data/' + background_image_name_dir + "_resized"
+
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        category_names = [name for name in os.listdir(images_directory)]
+        for category in category_names:
+            category_path = path + '/' + category
+            images_in_category_ = get_file_names_from_directory(directory_path=images_directory + '/' + category,
+                                                                extensions=["*.JPG", "*.jpg"])
+            images_in_category = images_in_category_[0] + images_in_category_[1]
+            num_images = len(images_in_category)
+
+            for i in range(num_images):
+                current_background_copy = current_background.copy()
+                current_image = cv2.imread(images_in_category[i])
+                current_image = cv2.resize(current_image, (56, 56))
+                current_image_name = images_in_category[i].rsplit("/", 1)[-1]
+
+                if not os.path.exists(category_path):
+                    os.makedirs(category_path)
+
+                x = random.randint(56, 200)
+                y = random.randint(56, 200)
+
+                current_background_crop = current_background_copy[x:x + 56, y:y + 56, :]
+                part_of_image = connect_image_with_background(current_image, current_background_crop)
+
+                current_background_copy[x:x + 56, y:y + 56, :] = part_of_image
+                cv2.imwrite(category_path + '/' + current_image_name, current_background_copy)
+
+
+def connect_image_with_background(image, background):
+    image_inverted = invert_image(image)
+    transformed_image = image_inverted * background + image
+    return transformed_image
+
